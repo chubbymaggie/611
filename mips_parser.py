@@ -29,6 +29,7 @@ def mips_parse(code):
 	#if "," are present strip them
 
 	"""Since the amount of whitespacing actually doesnot matter and splitting on commas isnt really an option since I wont be able to split the string equally, I have to work with the entire string in general and make sure that the splitting is done properly"""
+	labels = []
 	for line in code:
 		#print line
 		flag = 0
@@ -41,6 +42,7 @@ def mips_parse(code):
 			line = line.split(":")		
 			jump_flag = 1
 			rest = line[1]
+			labels.append(line[0])	
 		else:
 			rest = line
 			#Figure out what operation it is
@@ -82,14 +84,20 @@ def mips_parse(code):
 				code_line.append(code_element)		
 		#print code_line
 		return_list.append(code_line)
-	return return_list	
+	if labels:
+		return return_list, labels
+	else:
+		return return_list, None	
 
-def main():
-	filename = open(sys.argv[1], r"U")
-	code = filename.readlines()
-	parsed_code = mips_parse(code)
-	for line in parsed_code:
-		print line		
+#def main():
+#	filename = open(sys.argv[1], r"U")
+#	code = filename.readlines()
+#	parsed_code, labels = mips_parse(code)
+#	for line in parsed_code:
+#		print line
+#
+#	print "---------------------------"
+#	print labels		
 
-if __name__ == "__main__":
-	main()
+#if __name__ == "__main__":
+#	main()
