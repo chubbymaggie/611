@@ -64,7 +64,8 @@ class instruction:
 	label_dictionary = None
 	maindatabus_busy = False
 	ref_objlist = []
-	
+	registers = []
+	memdata = []
 
 	def __init__(self, code, raw_list, war_list, waw_list, dest, line_of_code):
 		self.line_of_code = line_of_code
@@ -135,6 +136,403 @@ class instruction:
 				elif flagraw == 0 and flagwaw == 0:
 					self.setidfalse = 1
 					self.idstage = True
+				#Because the Jump instruction actually needs to end at the ID Stage
+				
+				if self.code[0] == "j":
+					try:
+						jumper = instruction.label_dict[self.code[1]]
+					except:
+						print "Your label dictionary is really wronf man"
+						sys.exit(1)
+					if jumper > self.line_of_code:
+						diff = jumper - self.line_of_code
+						for stuff in range(num , num + diff):
+							obj_list[stuff].hideme = 1
+							obj_list[stuff].ifstage = True
+							obj_list[stuff].idstage = True
+							obj_list.execstage = True
+							obj_list.wbstage = True
+						#Also Just write the result in the IF Stage of the next hidden statement
+						self.result[1] = counter
+						obj_list[num + 1].result[0] = counter
+						instruction.ifsetter = num + 1
+						obj_list[num + 1].setiffalse = 1
+					elif jumper < self.line_of_code:
+						for stuff in range(num, len(obj_list)):
+							obj_list[stuff].hideme = 1
+							obj_list[stuff].ifstage = True
+							obj_list[stuff].idstage = True
+							obj_list.execstage = True
+							obj_list.wbstage = True
+						#Also Just write the result in the IF Stage of the next hidden statement
+						self.result[1] = counter
+						obj_list[num + 1].result[0] = counter
+						instruction.ifsetter = num + 1
+						obj_list[num + 1].setiffalse = 1
+						#THIS LINE IS EXTREMELY IMPORTANT.
+						obj_list.extend(ref_objlist[jumper:])
+				elif self.code[0] == "hlt":
+					self.hideme = 1
+					self.result[1] = counter
+					obj_list[num + 1].hideme = 1
+					obj_list[num + 1].result[0] = counter	
+					instruction.ifsetter = num + 1
+					obj_list[num + 1].setiffalse = 1
+
+				elif self.code[0] == "bne":
+					if int(instruction.registers[int(self.code[1][1:])], 2) == int(instruction.registers[int(self.code[2][1:])], 2):
+						try:
+							jumper = instruction.label_dict[self.code[3]]
+						except:
+							print "Error with the label dictionary"
+						if jumper > self.line_of_code:
+							diff = jumper - self.line_of_code
+							for stuff in range(num, num + diff):
+								obj_list[stuff].hideme = 1
+								obj_list[stuff].ifstage = True
+								obj_list[stuff].idstage = True
+								obj_list.execstage = True
+								obj_list.wbstage = True
+							self.result[1] = counter
+							obj_list[num + 1].result[0] = counter
+							instruction.ifsetter = num + 1
+							obj_list[num + 1].setiffalse = 1
+						elif jumper < self.line_of_code:
+							for stuff in range(num, len(obj_list)):
+								obj_list[stuff].hideme = 1
+								obj_list[stuff].ifstage = True
+								obj_list[stuff].idstage = True
+								obj_list.execstage = True
+								obj_list.wbstage = True
+							self.result[1] = counter
+							obj_list[num + 1].result[0] = counter
+							instruction.ifsetter = num + 1
+							obj_list[num + 1].setiffalse = 1	
+							#THIS LINE IS EXTREMELY IMPORTANT.
+							obj_list.extend(ref_objlist[jumper:])
+
+
+				elif self.code[0] == "beq":
+					if int(instruction.registers[int(self.code[1][1:])], 2) == int(instruction.registers[int(self.code[2][1:])], 2):
+						try:
+							jumper = instruction.label_dict[self.code[3]]
+						except:
+							print "Error with the label dictionary"
+						if jumper > self.line_of_code:
+							diff = jumper - self.line_of_code
+							for stuff in range(num, num + diff):
+								obj_list[stuff].hideme = 1
+								obj_list[stuff].ifstage = True
+								obj_list[stuff].idstage = True
+								obj_list.execstage = True
+								obj_list.wbstage = True
+							self.result[1] = counter
+							obj_list[num + 1].result[0] = counter
+							instruction.ifsetter = num + 1
+							obj_list[num + 1].setiffalse = 1
+						elif jumper < self.line_of_code:
+							for stuff in range(num, len(obj_list)):
+								obj_list[stuff].hideme = 1
+								obj_list[stuff].ifstage = True
+								obj_list[stuff].idstage = True
+								obj_list.execstage = True
+								obj_list.wbstage = True
+							self.result[1] = counter
+							obj_list[num + 1].result[0] = counter
+							instruction.ifsetter = num + 1
+							obj_list[num + 1].setiffalse = 1	
+							#THIS LINE IS EXTREMELY IMPORTANT.
+							obj_list.extend(ref_objlist[jumper:])
+
+		#Writing the code for the exec stage
+		elif (self.idstage == True) and (self.execstage == False):
+			#EXEC INSTRUCTIONS FOR LOAD WORD
+			if self.code[0] == "lw":
+				if self.uidone == False and instruction.mainui_busy == False:
+					self.result[1] = counter - 1
+					instruction.mainui_busy = True
+					instruction.uisetter = num
+					self.setuifalse = 1
+					self.uidone = True
+				elif((self.uidone == True and instruction.maindatabus_busy == False and self.memdone == False) or (self.uidone == True and instruction.maindatabus_busy == True 
+					and instruction.databussetter == num and self.memdone == False)):
+
+					instruction.maindatabus_busy = True
+					instruction.databussetter = num
+					self.lwcounter = self.lwcounter - 1
+					if self.lwcounter == 0:
+						self.execstage = True
+						self.setdatabusfalse = 1
+						"""LOAD WORD ACTUAL LOGIC NEEDED"""
+						self.memdone = True
+
+
+			elif self.code[0] == "l.d":
+				if self.uidone == False and instruction.mainui_busy == False:
+					self.result[1] = counter - 1
+					instruction.mainui_busy = True
+					instruction.uisetter = num
+					self.setuifalse = 1
+					self.uidone = True
+				elif((self.uidone == True and instruction.maindatabus_busy == False and self.memdone == False) or (self.uidone == True and instruction.maindatabus_busy == True 
+					and instruction.databussetter == num and self.memdone == False)):
+
+					instruction.maindatabus_busy = True
+					instruction.databussetter = num
+					self.ldcounter = self.ldcounter - 1
+					if self.ldcounter == 0:
+						self.execstage = True
+						self.setdatabusfalse = 1
+						self.memdone = True
+
+			elif self.code[0] == "dadd" or self.code[0] == "daddi":
+				if (self.uidone == False and instruction.mainui_busy == False):
+					self.result[1] = counter - 1
+					instruction.mainui_busy = True
+					instruction.uisetter = num
+					self.setuifalse = 1
+					self.uidone = True
+				elif((self.uidone == True and instruction.maindatabus_busy == False and self.memdone == False)):
+					instruction.databussetter = num
+					instruction.maindatabus_busy = True
+					self.execstage = True
+					self.setdatabusfalse = 1
+					#THE ACTUAL LOGIC FOR ADDITION
+					if self.code[0] == "dadd":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) + int(instruction.registers[int(self.code[3][1:])], 2)
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					elif self.code[0] == "daddi":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) + int(self.code[3])
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					self.memdone = True	
+			#DSUB AND DSUBI INSTRUCTIONS
+			elif self.code[0] == "dsub" or self.code[0] == "dsubi":
+				if (self.uidone == False and instruction.mainui_busy == False):
+					self.result[1] = counter - 1
+					instruction.mainui_busy = True
+					instruction.uisetter = num
+					self.setuifalse = 1
+					self.uidone = True
+				elif((self.uidone == True and instruction.maindatabus_busy == False and self.memdone == False)):
+					instruction.databussetter = num
+					instruction.maindatabus_busy = True
+					self.execstage = True
+					self.setdatabusfalse = 1
+					#THE ACTUAL LOGIC FOR ADDITION
+					if self.code[0] == "dsub":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) - int(instruction.registers[int(self.code[3][1:])], 2)
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					elif self.code[0] == "dsubi":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) - int(self.code[3])
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					self.memdone = True
+
+			elif self.code[0] == "and" or self.code[0] == "andi":
+				if self.uidone == False and instruction.mainui_busy == False:
+					self.result[1] = counter - 1
+					instruction.mainui_busy = True
+					instruction.uisetter = num
+					self.setuifalse = 1
+					self.uidone = True
+				elif(self.uidone == True and instruction.maindatabus_busy == False and self.memdone == False):
+					instruction.databussetter = num
+					instruction.maindatabus_busy = True
+					self.execstage = True
+					self.setdatabusfalse = 1
+					"""ACTUAL BITWISE ANDING"""
+					if self.code[0] == "and":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) & int(instruction.registers[int(self.code[3][1:])], 2)
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = 	int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					elif self.code[0] == "andi":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) & int(self.code[3][1:])
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = 	int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					self.memdone = True
+
+			elif self.code[0] == "or" or self.code[0] == "ori":
+				if self.uidone == False and instruction.mainui_busy == False:
+					self.result[1] = counter - 1
+					instruction.mainui_busy = True
+					instruction.uisetter = num
+					self.setuifalse = 1
+					self.uidone = True
+				elif(self.uidone == True and instruction.maindatabus_busy == False and self.memdone == False):
+					instruction.databussetter = num
+					instruction.maindatabus_busy = True
+					self.execstage = True
+					self.setdatabusfalse = 1
+					"""ACTUAL BITWISE ORING"""
+					if self.code[0] == "or":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) | int(instruction.registers[int(self.code[3][1:])], 2)
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = 	int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					elif self.code[0] == "ori":
+						answer = int(instruction.registers[int(self.code[2][1:])], 2) | int(self.code[3][1:])
+						answer = "{0:32b}".format(answer)
+						answer = list(answer)
+						for i in range(len(answer)):
+								if answer[i] == " ":
+										answer[i] = "0"
+						answer = "".join(answer)
+						regindex = 	int(self.code[1][1:])
+						instruction.registers[regindex] = answer
+					self.memdone = True
+
+
+			elif self.code[0] == "add.d" or self.code[0] == "sub.d":
+				if self.fpa == False:
+					if instruction.main_add_pipe == True:
+						if instruction.mainadd_busy == False:
+							instruction.addsetter = num
+							if self.fpalatency == instruction.main_add_latency :
+								instruction.mainadd_busy = True
+								self.result[1] = counter - 1
+								self.setaddfalse = 1
+							else:
+								pass
+							self.fpalatency = self.fpalatency - 1
+							if self.fpalatency == 0:
+								self.setaddfalse = 1
+								self.fpa = True
+								self.execstage = True
+					elif instruction.main_add_pipe == False:
+						if instruction.mainadd_busy == False:
+							instruction.addsetter = num
+							instruction.mainadd_busy = True
+							self.result[1] = counter - 1
+							self.fpalatency = self.fpalatency - 1
+						elif instruction.mainadd_busy == True and instruction.addsetter == num:
+							instruction.addsetter = num
+							instruction.mainadd_busy = True
+							self.fpalatency = self.fpalatency - 1
+							if self.fpalatency == 0:
+								self.setaddfalse = 1
+								self.fpa = True	
+								self.execstage = True							
+						
+			elif self.code[0] == "mul.d":
+				if self.fpm == False:
+					if instruction.mainmul_pipe == True:
+						if instruction.mainmul_busy == False:
+							instruction.mulsetter = num
+							if self.fpmlatency == instruction.mainmul_latency :
+								instruction.mainmul_busy = True
+								self.result[1] = counter - 1
+								self.setmulfalse = 1
+							else:
+								pass
+							self.fpmlatency = self.fpmlatency - 1
+							if self.fpmlatency == 0:
+								self.setmulfalse = 1
+								self.fpm = True
+								self.execstage = True
+					elif instruction.mainmul_pipe == False:
+						if instruction.mainmul_busy == False:
+							instruction.mulsetter = num
+							instruction.mainmul_busy = True
+							self.result[1] = counter - 1
+							self.fpmlatency = self.fpmlatency - 1
+						elif instruction.mainmul_busy == True and instruction.mulsetter == num:
+							instruction.mulsetter = num
+							instruction.mainmul_busy = True
+							self.fpmlatency = self.fpmlatency - 1
+							if self.fpmlatency == 0:
+								self.setmulfalse = 1
+								self.fpm = True	
+								self.execstage = True					
+
+
+			elif self.code[0] == "div.d":
+				if self.fpd == False:
+					if instruction.maindiv_pipe == True:
+						if instruction.maindiv_busy == False:
+							instruction.divsetter = num
+							if self.fpdlatency == instruction.maindiv_latency :
+								instruction.maindiv_busy = True
+								self.result[1] = counter - 1
+								self.setdivfalse = 1
+							else:
+								pass
+							self.fpdlatency = self.fpdlatency - 1
+							if self.fpdlatency == 0:
+								self.setdivfalse = 1
+								self.fpd = True
+								self.execstage = True
+					elif instruction.maindiv_pipe == False:
+						if instruction.mainmul_busy == False:
+							instruction.divsetter = num
+							instruction.maindiv_busy = True
+							self.result[1] = counter - 1
+							self.fpdlatency = self.fpdlatency - 1
+						elif instruction.maindiv_busy == True and instruction.divsetter == num:
+							instruction.divsetter = num
+							instruction.maindiv_busy = True
+							self.fpdlatency = self.fpdlatency - 1
+							if self.fpdlatency == 0:
+								self.setdivfalse = 1
+								self.fpd = True	
+								self.execstage = True
+
+		
+		elif self.execstage	 == True and self.wbstage == False:
+			if self.wbstage == False and instruction.mainwb_busy == False:
+				self.result[2] = counter - 1
+				instruction.mainwb_busy = True
+				instruction.wbsetter = num
+				self.setwbfalse = 1
+				self.wbstage = True
+				self.result[3] = counter
+
+		
+
+
 
 def main():
 	global obj_list
@@ -148,15 +546,6 @@ def main():
 	#<------------------------------------->
 	#print "<------------------------------------------------------->"
 	#Reading the data file and storing it in a list
-	memory_data = [x.strip() for x in (open(sys.argv[2], r"U")).readlines()]
-	#<------TESTING MODULE----------------->
-	#for i in memory_data:
-	#	print i
-	#<------------------------------------->
-	register_data = [x.strip() for x in (open(sys.argv[3], r"U")).readlines()]
-	#<------TESTING MODULE----------------->
-	#for i in register_data:
-	#	print i
 	config =filter(lambda k: k != "", [x.strip() for x in (open(sys.argv[4], r"U")).readlines()])
 	latencies = []
 	pipelined = []	
@@ -229,7 +618,15 @@ def main():
 			pass
 		else:
 			raw_dict[i] = None
-	
+	instruction.registers = [x.strip() for x in (open(sys.argv[3], r"U")).readlines()]
+	#<------TESTING MODULE----------------->
+	#for i in register_data:
+	#	print i	
+	instruction.memdata = [x.strip() for x in (open(sys.argv[2], r"U")).readlines()]
+	#<------TESTING MODULE----------------->
+	#for i in memory_data:
+	#	print i
+	#<------------------------------------->
 	#<------------------TESTING ROUTINE----------------------->
 	#print "<--------------RAW DICTIONARY---------------->"
 	#for i in raw_dict.items():
@@ -288,11 +685,16 @@ def main():
 			instruction.mainif_busy = False
 		if obj_list[instruction.idsetter].setidfalse == 1:
 			instruction.mainid_busy = False
+		"""COMPLETE THIS GODDAMM LIST OF FALSE CHECKS"""
 		counter = counter + 1
-	print obj_list[0].result[0]
-	print obj_list[0].ifstage
-	print obj_list[0].idstage
-	print obj_list[0].execstage
+	#print obj_list[0].result[0]
+	#print obj_list[0].ifstage
+	#print obj_list[0].idstage
+	#print obj_list[0].execstage
+	#shit = instruction.registers[0]
+	#print instruction.registers.index(shit)
+	#print instruction.memdata
+	print "Working fine"
 if __name__ == "__main__":
 	main()
 
