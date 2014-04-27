@@ -1,0 +1,4 @@
+GG: LW R1, 4(R4) 
+ LW R2, 8(R5)
+HLT
+HLT
