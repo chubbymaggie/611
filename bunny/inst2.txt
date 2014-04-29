@@ -1,0 +1,4 @@
+GG: SW R1, 4(R4) 
+S.D F2, 12(R5)
+HLT
+HLT
