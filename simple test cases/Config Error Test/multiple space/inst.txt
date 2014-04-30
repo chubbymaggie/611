@@ -1,0 +1,4 @@
+L.D F1                ,4(R4)
+ADD.D       F2,F2,     F1
+            HLT
+HLT

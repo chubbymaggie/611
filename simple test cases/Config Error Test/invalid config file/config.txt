@@ -1,0 +1,6 @@
+FP adder:4,yes
+FP Multiplier:-1,yes
+FP divider:10,no
+Main memory:
+I-Cache:1
+D-Cache:1

@@ -1,0 +1,31 @@
+instruction                   	IF		ID		EX		WB		RAW		WAR		WAW		Struct
+gg: l.d f1, 4(r4)             	6		7		15		16		N		N		N		N
+l.d f2, 8(r5)                 	7		8		17		18		N		N		N		Y
+add.d f4, f6, f2              	8		18		22		23		Y		N		N		N
+sub.d f5, f7, f1              	18		19		23		24		N		N		N		N
+mul.d f6, f1, f5              	24		25		31		32		N		N		N		N
+add.d f7, f2, f6              	25		32		36		37		Y		N		N		N
+add.d f6, f1, f7              	32		37		41		42		Y		N		N		N
+daddi r4, r4, 4               	37		38		40		41		N		N		N		N
+daddi r5, r5, 4               	43		44		46		47		N		N		N		N
+dsub r1,r1,r2                 	44		45		47		48		N		N		N		N
+bne r1,r3,gg                  	45		48						Y		N		N		N
+hlt                           	48								N		N		N		N
+gg: l.d f1, 4(r4)             	49		50		53		54		N		N		N		N
+l.d f2, 8(r5)                 	50		51		60		61		N		N		N		Y
+add.d f4, f6, f2              	51		61		65		66		Y		N		N		N
+sub.d f5, f7, f1              	61		62		66		67		N		N		N		N
+mul.d f6, f1, f5              	62		67		73		74		Y		N		N		N
+add.d f7, f2, f6              	67		74		78		79		Y		N		N		N
+add.d f6, f1, f7              	74		79		83		84		Y		N		N		N
+daddi r4, r4, 4               	79		80		82		83		N		N		N		N
+daddi r5, r5, 4               	80		81		84		85		N		N		N		Y
+dsub r1,r1,r2                 	81		82		85		86		N		N		N		Y
+bne r1,r3,gg                  	82		86						Y		N		N		N
+hlt                           	86		87						N		N		N		N
+hlt                           	92								N		N		N		N
+
+Total number of requests to instruction cache  25
+Total number of instruction cache hit  21
+Total number of requests to data cache  8
+Total number of data cache hit  6

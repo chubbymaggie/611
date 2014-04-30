@@ -1,0 +1,11 @@
+instruction                   	IF		ID		EX		WB		RAW		WAR		WAW		Struct
+gg: dsubi r1,r1,1             	6		7		9		10		N		N		N		N
+bne r1,r2,stop                	7		10						Y		N		N		N
+j gg                          	10								N		N		N		N
+stop:hlt                      	11		12						N		N		N		N
+hlt                           	17								N		N		N		N
+
+Total number of requests to instruction cache  5
+Total number of instruction cache hit  3
+Total number of requests to data cache  0
+Total number of data cache hit  0

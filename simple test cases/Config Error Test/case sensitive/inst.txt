@@ -1,0 +1,4 @@
+GG: DaddI R2,R2,1
+Bne R1,R2,GG
+HLT
+hlt

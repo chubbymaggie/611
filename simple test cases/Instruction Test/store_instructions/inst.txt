@@ -1,0 +1,6 @@
+S.D F1,0(R4)
+SW R5,16(R4)
+S.D F2,8(R4)
+SW R6,20(R4)
+HLT
+HLT

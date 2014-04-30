@@ -1,0 +1,13 @@
+instruction                   	IF		ID		EX		WB		RAW		WAR		WAW		Struct
+gg: daddi r2,r2,1             	6		7		9		10		N		N		N		N
+bne r1,r2,gg                  	7		10						Y		N		N		N
+hlt                           	10								N		N		N		N
+gg: daddi r2,r2,1             	11		12		14		15		N		N		N		N
+bne r1,r2,gg                  	12		15						Y		N		N		N
+hlt                           	15		16						N		N		N		N
+hlt                           	16								N		N		N		N
+
+Total number of requests to instruction cache  7
+Total number of instruction cache hit  6
+Total number of requests to data cache  0
+Total number of data cache hit  0
