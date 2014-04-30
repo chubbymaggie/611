@@ -1,0 +1,11 @@
+6 7 15 16   					N N N N
+7 16 20 21   					N N Y N
+16 17 19 20   					N N N N
+17 20 22 23   					N N Y N
+25 26 30 31   					N N N N
+26 27 None None   					N N N N
+27 None None None   					N N N N
+The number of instruction cache access are7
+The number of instruction cache hits are 5
+The number of data cache access are 2
+The number of data cache hits are1
