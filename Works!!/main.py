@@ -2306,9 +2306,11 @@ def main():
 	print "***********************************"
 	result = open(sys.argv[5], "w")
 	for i in obj_list:
-		result.write(" ".join([str(x) for x in i.result]))
-		result.write("   					")
-		result.write(" ".join([str(x) for x in i.hazards]))
+		result.write("{0:20s}".format(" ".join(i.code)))
+		result.write("\t")
+		result.write("{0:20s}".format((" ".join([str(x) for x in i.result]))))
+		
+		result.write("%s" %(" ".join([str(x) for x in i.hazards])))
 		result.write("\n")	
 	result.write("The number of instruction cache access are" + str(instruction.instructioncachemaincount) + "\n")
 	result.write("The number of instruction cache hits are " + str(instruction.instructioncachehitcount) + "\n")
